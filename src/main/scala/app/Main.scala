@@ -9,5 +9,6 @@ object Main {
     val sc = SparkContext.getOrCreate(conf)
 
     //your code goes here
+    println("hello")
   }
 }
