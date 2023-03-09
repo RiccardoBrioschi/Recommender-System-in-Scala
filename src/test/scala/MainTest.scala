@@ -1834,29 +1834,29 @@ class MainTest {
       .sortWith(_._1 <= _._1)
 
     val expected = Array(
-      (1996, "Toy Story (1995)"),
-      (1997, "Star Wars: Episode VI - Return of the Jedi (1983)"),
-      (1998, "Star Wars: Episode V - The Empire Strikes Back (1980)"),
-      (1999, "Star Wars: Episode V - The Empire Strikes Back (1980)"),
-      (2000, "Star Wars: Episode IV - A New Hope (1977)"),
-      (2001, "Star Wars: Episode V - The Empire Strikes Back (1980)"),
-      (2002, "Star Wars: Episode IV - A New Hope (1977)"),
-      (2003, "Lord of the Rings: The Two Towers, The (2002)"),
-      (2004, "Lord of the Rings: The Return of the King, The (2003)"),
-      (2005, "Star Wars: Episode III - Revenge of the Sith (2005)"),
-      (2006, "Lord of the Rings: The Two Towers, The (2002)"),
-      (2007, "Star Wars: Episode V - The Empire Strikes Back (1980)"),
-      (2008, "Star Wars: Episode IV - A New Hope (1977)"),
-      (2009, "Star Wars: Episode I - The Phantom Menace (1999)"),
-      (2010, "Avatar (2009)"),
-      (2011, "Toy Story 3 (2010)"),
-      (2012, "Lord of the Rings: The Return of the King, The (2003)"),
-      (2013, "Star Wars: Episode IV - A New Hope (1977)"),
-      (2014, "Toy Story 3 (2010)"),
-      (2015, "Lord of the Rings: The Return of the King, The (2003)"),
-      (2016, "Avatar (2009)"),
-      (2017, "Star Wars: Episode IV - A New Hope (1977)"),
-      (2018, "Lord of the Rings: The Return of the King, The (2003)")
+      (1996,"Toy Story (1995)"),
+      (1997,"Star Wars: Episode VI - Return of the Jedi (1983)"),
+      (1998,"Star Wars: Episode V - The Empire Strikes Back (1980)"),
+      (1999,"Star Wars: Episode I - The Phantom Menace (1999)"),
+      (2000,"Star Wars: Episode IV - A New Hope (1977)"),
+      (2001,"Star Wars: Episode V - The Empire Strikes Back (1980)"),
+      (2002,"Lord of the Rings: The Fellowship of the Ring, The (2001)"),
+      (2003,"Lord of the Rings: The Two Towers, The (2002)"),
+      (2004,"Lord of the Rings: The Return of the King, The (2003)"),
+      (2005,"Star Wars: Episode III - Revenge of the Sith (2005)"),
+      (2006,"Lord of the Rings: The Return of the King, The (2003)"),
+      (2007,"Star Wars: Episode V - The Empire Strikes Back (1980)"),
+      (2008,"Lord of the Rings: The Return of the King, The (2003)"),
+      (2009,"Star Wars: Episode I - The Phantom Menace (1999)"),
+      (2010,"Avatar (2009)"),
+      (2011,"Toy Story 3 (2010)"),
+      (2012,"Lord of the Rings: The Return of the King, The (2003)"),
+      (2013,"Avatar (2009)"),
+      (2014,"Toy Story 3 (2010)"),
+      (2015,"Lord of the Rings: The Return of the King, The (2003)"),
+      (2016,"Star Wars: Episode VII - The Force Awakens (2015)"),
+      (2017,"Star Wars: Episode IV - A New Hope (1977)"),
+      (2018,"Lord of the Rings: The Return of the King, The (2003)")
     )
 
     res.zip(expected).foreach(t => {
@@ -1887,29 +1887,29 @@ class MainTest {
       .sortWith(_._1 <= _._1)
 
     val expected = Array(
-      (1996, List("Adventure", "Animation", "Children", "Comedy", "Fantasy")),
-      (1997, List("Action", "Adventure", "Sci-Fi")),
-      (1998, List("Action", "Adventure", "Sci-Fi")),
-      (1999, List("Action", "Adventure", "Sci-Fi")),
-      (2000, List("Action", "Adventure", "Sci-Fi")),
-      (2001, List("Action", "Adventure", "Sci-Fi")),
-      (2002, List("Action", "Adventure", "Sci-Fi")),
-      (2003, List("Adventure", "Fantasy")),
-      (2004, List("Action", "Adventure", "Drama", "Fantasy")),
-      (2005, List("Action", "Adventure", "Sci-Fi")),
-      (2006, List("Adventure", "Fantasy")),
-      (2007, List("Action", "Adventure", "Sci-Fi")),
-      (2008, List("Action", "Adventure", "Sci-Fi")),
-      (2009, List("Action", "Adventure", "Sci-Fi")),
-      (2010, List("Action", "Adventure", "Sci-Fi", "IMAX")),
-      (2011, List("Adventure", "Animation", "Children", "Comedy", "Fantasy", "IMAX")),
-      (2012, List("Action", "Adventure", "Drama", "Fantasy")),
-      (2013, List("Action", "Adventure", "Sci-Fi")),
-      (2014, List("Adventure", "Animation", "Children", "Comedy", "Fantasy", "IMAX")),
-      (2015, List("Action", "Adventure", "Drama", "Fantasy")),
-      (2016, List("Action", "Adventure", "Sci-Fi", "IMAX")),
-      (2017, List("Action", "Adventure", "Sci-Fi")),
-      (2018, List("Action", "Adventure", "Drama", "Fantasy"))
+      (1996,List("Adventure", "Animation", "Children", "Comedy", "Fantasy")),
+      (1997,List("Action", "Adventure", "Sci-Fi")),
+      (1998,List("Action", "Adventure", "Sci-Fi")),
+      (1999,List("Action", "Adventure", "Sci-Fi")),
+      (2000,List("Action", "Adventure", "Sci-Fi")),
+      (2001,List("Action", "Adventure", "Sci-Fi")),
+      (2002,List("Adventure", "Fantasy")),
+      (2003,List("Adventure", "Fantasy")),
+      (2004,List("Action", "Adventure", "Drama", "Fantasy")),
+      (2005,List("Action", "Adventure", "Sci-Fi")),
+      (2006,List("Action", "Adventure", "Drama", "Fantasy")),
+      (2007,List("Action", "Adventure", "Sci-Fi")),
+      (2008,List("Action", "Adventure", "Drama", "Fantasy")),
+      (2009,List("Action", "Adventure", "Sci-Fi")),
+      (2010,List("Action", "Adventure", "Sci-Fi", "IMAX")),
+      (2011,List("Adventure", "Animation", "Children", "Comedy", "Fantasy", "IMAX")),
+      (2012,List("Action", "Adventure", "Drama", "Fantasy")),
+      (2013,List("Action", "Adventure", "Sci-Fi", "IMAX")),
+      (2014,List("Adventure", "Animation", "Children", "Comedy", "Fantasy", "IMAX")),
+      (2015,List("Action", "Adventure", "Drama", "Fantasy")),
+      (2016,List("Action", "Adventure", "Fantasy", "Sci-Fi", "IMAX")),
+      (2017,List("Action", "Adventure", "Sci-Fi")),
+      (2018,List("Action", "Adventure", "Drama", "Fantasy"))
     )
 
     res.zip(expected).foreach(t => {
@@ -2099,29 +2099,29 @@ class MainTest {
       .sortWith(_._1 <= _._1)
 
     val expected = Array(
-      (1996, "Batman (1989)"),
-      (1997, "Independence Day (a.k.a. ID4) (1996)"),
-      (1998, "Air Force One (1997)"),
-      (1999, "Saving Private Ryan (1998)"),
-      (2000, "Star Wars: Episode IV - A New Hope (1977)"),
-      (2001, "Crouching Tiger, Hidden Dragon (Wo hu cang long) (2000)"),
-      (2002, "Spider-Man (2002)"),
-      (2003, "Lord of the Rings: The Two Towers, The (2002)"),
-      (2004, "Lord of the Rings: The Return of the King, The (2003)"),
-      (2005, "Sixth Sense, The (1999)"),
-      (2006, "Lord of the Rings: The Two Towers, The (2002)"),
-      (2007, "Departed, The (2006)"),
-      (2008, "Juno (2007)"),
-      (2009, "Star Trek (2009)"),
-      (2010, "Avatar (2009)"),
-      (2011, "Inception (2010)"),
-      (2012, "Forrest Gump (1994)"),
-      (2013, "Godfather, The (1972)"),
-      (2014, "Matrix, The (1999)"),
-      (2015, "Matrix, The (1999)"),
-      (2016, "Matrix, The (1999)"),
-      (2017, "Shawshank Redemption, The (1994)"),
-      (2018, "Matrix, The (1999)")
+      (1996,"Batman (1989)"),
+      (1997,"Independence Day (a.k.a. ID4) (1996)"),
+      (1998,"Titanic (1997)"),
+      (1999,"Saving Private Ryan (1998)"),
+      (2000,"Star Wars: Episode IV - A New Hope (1977)"),
+      (2001,"Crouching Tiger, Hidden Dragon (Wo hu cang long) (2000)"),
+      (2002,"Spider-Man (2002)"),
+      (2003,"Lord of the Rings: The Two Towers, The (2002)"),
+      (2004,"Lord of the Rings: The Return of the King, The (2003)"),
+      (2005,"Sixth Sense, The (1999)"),
+      (2006,"Lord of the Rings: The Two Towers, The (2002)"),
+      (2007,"Departed, The (2006)"),
+      (2008,"Juno (2007)"),
+      (2009,"Star Trek (2009)"),
+      (2010,"Avatar (2009)"),
+      (2011,"Inception (2010)"),
+      (2012,"Dark Knight, The (2008)"),
+      (2013,"Godfather, The (1972)"),
+      (2014,"Matrix, The (1999)"),
+      (2015,"Matrix, The (1999)"),
+      (2016,"Matrix, The (1999)"),
+      (2017,"Shawshank Redemption, The (1994)"),
+      (2018,"Matrix, The (1999)")
     )
 
     res.zip(expected).foreach(t => {
@@ -2152,29 +2152,29 @@ class MainTest {
       .sortWith(_._1 <= _._1)
 
     val expected = Array(
-      (1996, List("Action", "Crime", "Thriller")),
-      (1997, List("Action", "Adventure", "Sci-Fi", "Thriller")),
-      (1998, List("Action", "Thriller")),
-      (1999, List("Action", "Drama", "War")),
-      (2000, List("Action", "Adventure", "Sci-Fi")),
-      (2001, List("Action", "Drama", "Romance")),
-      (2002, List("Action", "Adventure", "Sci-Fi", "Thriller")),
-      (2003, List("Adventure", "Fantasy")),
-      (2004, List("Action", "Adventure", "Drama", "Fantasy")),
-      (2005, List("Drama", "Horror", "Mystery")),
-      (2006, List("Adventure", "Fantasy")),
-      (2007, List("Crime", "Drama", "Thriller")),
-      (2008, List("Comedy", "Drama", "Romance")),
-      (2009, List("Action", "Adventure", "Sci-Fi", "IMAX")),
-      (2010, List("Action", "Adventure", "Sci-Fi", "IMAX")),
-      (2011, List("Action", "Crime", "Drama", "Mystery", "Sci-Fi", "Thriller", "IMAX")),
-      (2012, List("Comedy", "Drama", "Romance", "War")),
-      (2013, List("Crime", "Drama")),
-      (2014, List("Action", "Sci-Fi", "Thriller")),
-      (2015, List("Action", "Sci-Fi", "Thriller")),
-      (2016, List("Action", "Sci-Fi", "Thriller")),
-      (2017, List("Crime", "Drama")),
-      (2018, List("Action", "Sci-Fi", "Thriller"))
+      (1996,List("Action", "Crime", "Thriller")),
+      (1997,List("Action", "Adventure", "Sci-Fi", "Thriller")),
+      (1998,List("Drama", "Romance")),
+      (1999,List("Action", "Drama", "War")),
+      (2000,List("Action", "Adventure", "Sci-Fi")),
+      (2001,List("Action", "Drama", "Romance")),
+      (2002,List("Action", "Adventure", "Sci-Fi", "Thriller")),
+      (2003,List("Adventure", "Fantasy")),
+      (2004,List("Action", "Adventure", "Drama", "Fantasy")),
+      (2005,List("Drama", "Horror", "Mystery")),
+      (2006,List("Adventure", "Fantasy")),
+      (2007,List("Crime", "Drama", "Thriller")),
+      (2008,List("Comedy", "Drama", "Romance")),
+      (2009,List("Action", "Adventure", "Sci-Fi", "IMAX")),
+      (2010,List("Action", "Adventure", "Sci-Fi", "IMAX")),
+      (2011,List("Action", "Crime", "Drama", "Mystery", "Sci-Fi", "Thriller", "IMAX")),
+      (2012,List("Action", "Crime", "Drama", "IMAX")),
+      (2013,List("Crime", "Drama")),
+      (2014,List("Action", "Sci-Fi", "Thriller")),
+      (2015,List("Action", "Sci-Fi", "Thriller")),
+      (2016,List("Action", "Sci-Fi", "Thriller")),
+      (2017,List("Crime", "Drama")),
+      (2018,List("Action", "Sci-Fi", "Thriller"))
     )
 
     res.zip(expected).foreach(t => {
@@ -2204,7 +2204,7 @@ class MainTest {
 
     val res = processor.getMostAndLeastRatedGenreAllTime
 
-    val expected = (("Horror", 1), ("Action", 15))
+    val expected = (("Comedy", 1), ("Action", 15))
 
     // Least
     if (res._1._1 != expected._1._1) {
