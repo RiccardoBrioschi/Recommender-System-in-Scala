@@ -44,7 +44,7 @@ class SimpleAnalytics() extends Serializable {
     val second_rdd = ratingsGroupedByYearByTitle.map(term=> (term._2.map(elem=> (elem._1,elem._2.size)).maxBy(_._2), term._1)).map(movie=>
       (movie._1._1,movie._2))
     // We merge and return the result
-    val joined_rdd = first_rdd.join(second_rdd).map(term=> (term._2._2, term._2._1))
+    val joined_rdd = first_rdd.join(second_rdd).map(term=> (term._2._2,term._2._1))
     joined_rdd
   }
 
@@ -60,7 +60,13 @@ class SimpleAnalytics() extends Serializable {
   }
 
   // Note: if two genre has the same number of rating, return the first one based on lexicographical sorting on genre.
-  def getMostAndLeastRatedGenreAllTime: ((String, Int), (String, Int)) = ???
+  def getMostAndLeastRatedGenreAllTime: ((String, Int), (String, Int)) = {
+    val result = this.getMostRatedGenreEachYear
+    val intermediate = result.flatMap(year => year._2.map(genre => (genre,1))).reduceByKey(_ + _)
+    val most = intermediate.reduce((x,y) => if (x._2 > y._2) x else y)
+    val least = intermediate.reduce((x,y) => if (x._2 < y._2) x else y)
+    (least,most)
+  }
 
   /**
    * Filter the movies RDD having the required genres
