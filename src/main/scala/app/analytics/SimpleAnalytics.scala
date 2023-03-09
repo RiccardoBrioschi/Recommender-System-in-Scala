@@ -19,13 +19,13 @@ class SimpleAnalytics() extends Serializable {
             movie: RDD[(Int, String, List[String])]
           ): Unit = {
     // We group movies by movie ID
-    titlesGroupedById = movie.groupBy(x => x._1)
+    titlesGroupedById = movie.groupBy(x => x._1).persist()
     // We group ratings based on year and ID, using dateTime to identify the year in which the rate was posted
     ratingsGroupedByYearByTitle = ratings.groupBy(rating => {
       val temp_year = new DateTime((rating._5.toLong) * 1000)
       val year = temp_year.year().get()
       year
-    }).map(term=> (term._1, term._2.groupBy(elem => elem._2)))
+    }).map(term=> (term._1, term._2.groupBy(elem => elem._2))).persist()
     // I have to apply the partitioning
   }
 
@@ -76,7 +76,11 @@ class SimpleAnalytics() extends Serializable {
    * @return The RDD for the movies which are in the supplied genres
    */
   def getAllMoviesByGenre(movies: RDD[(Int, String, List[String])],
-                          requiredGenres: RDD[String]): RDD[String] = ???
+                          requiredGenres: RDD[String]): RDD[String] = {
+    val requirements = requiredGenres.collect.toList
+    val result = movies.filter(movie => movie._3.containsSlice(requirements)).map(_._2)
+    result
+  }
 
   /**
    * Filter the movies RDD having the required genres
@@ -88,6 +92,7 @@ class SimpleAnalytics() extends Serializable {
    *                          (https://spark.apache.org/docs/2.4.8/rdd-programming-guide.html#broadcast-variables)
    * @return The RDD for the movies which are in the supplied genres
    */
+
   def getAllMoviesByGenre_usingBroadcast(movies: RDD[(Int, String, List[String])],
                                          requiredGenres: List[String],
                                          broadcastCallback: List[String] => Broadcast[List[String]]): RDD[String] = ???
