@@ -41,8 +41,12 @@ class SimpleAnalytics() extends Serializable {
     // We create a first new RDD containing (movie_name,movie_ID) for each movie
     val first_rdd = titlesGroupedById.map(movie => (movie._1,movie._2.toList.head._2))
     // We create a second new RDD containing, for each year, the ID of the movie which received the largest number of ratings
-    val second_rdd = ratingsGroupedByYearByTitle.map(term=> (term._2.map(elem=> (elem._1,elem._2.size)).maxBy(_._2), term._1)).map(movie=>
-      (movie._1._1,movie._2))
+    val second_rdd = ratingsGroupedByYearByTitle.map(term=> (term._2.map(elem=> (elem._1,elem._2.size)).reduce((a,b) =>{
+      if (a._2 > b._2) a
+      else if (b._2 > a._2) b
+      else if (a._1 > b._1) a
+      else b
+    }) , term._1)).map(movie=> (movie._1._1,movie._2))
     // We merge and return the result
     val joined_rdd = first_rdd.join(second_rdd).map(term=> (term._2._2,term._2._1))
     joined_rdd
@@ -52,9 +56,12 @@ class SimpleAnalytics() extends Serializable {
     // We create a first new RDD containing (movie_name,movie_ID) for each movie
     val first_rdd = titlesGroupedById.map(movie => (movie._1, movie._2.toList.head._3))
     // We create a second new RDD containing, for each year, the ID of the movie which received the largest number of ratings
-    val second_rdd = ratingsGroupedByYearByTitle.map(term => (term._2.map(elem => (elem._1, elem._2.size)).maxBy(_._2), term._1)).map(movie =>
-      (movie._1._1, movie._2))
-    // We merge and return the result
+    val second_rdd = ratingsGroupedByYearByTitle.map(term => (term._2.map(elem => (elem._1, elem._2.size)).reduce((a, b) => {
+      if (a._2 > b._2) a
+      else if (b._2 > a._2) b
+      else if (a._1 > b._1) a
+      else b
+    }), term._1)).map(movie => (movie._1._1, movie._2))
     val joined_rdd = first_rdd.join(second_rdd).map(term => (term._2._2, term._2._1))
     joined_rdd
   }
@@ -63,8 +70,18 @@ class SimpleAnalytics() extends Serializable {
   def getMostAndLeastRatedGenreAllTime: ((String, Int), (String, Int)) = {
     val result = this.getMostRatedGenreEachYear
     val intermediate = result.flatMap(year => year._2.map(genre => (genre,1))).reduceByKey(_ + _)
-    val most = intermediate.reduce((x,y) => if (x._2 > y._2) x else y)
-    val least = intermediate.reduce((x,y) => if (x._2 < y._2) x else y)
+    val most = intermediate.reduce((x,y) => {
+      if (x._2 > y._2) x
+      else if (y._2 > x._2) y
+      else if (x._1 < y._1) x
+      else y
+    })
+    val least = intermediate.reduce((x,y) => {
+      if (x._2 > y._2) y
+      else if (y._2 > x._2) x
+      else if (x._1 < y._1) x
+      else y
+    })
     (least,most)
   }
 
