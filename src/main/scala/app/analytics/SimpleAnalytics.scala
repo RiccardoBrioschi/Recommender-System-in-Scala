@@ -112,7 +112,11 @@ class SimpleAnalytics() extends Serializable {
 
   def getAllMoviesByGenre_usingBroadcast(movies: RDD[(Int, String, List[String])],
                                          requiredGenres: List[String],
-                                         broadcastCallback: List[String] => Broadcast[List[String]]): RDD[String] = ???
+                                         broadcastCallback: List[String] => Broadcast[List[String]]): RDD[String] = {
+    val requirements = broadcastCallback(requiredGenres)
+    val result = movies.filter(movie => movie._3.containsSlice(requirements.value)).map(_._2)
+    result
+  }
 
 }
 
