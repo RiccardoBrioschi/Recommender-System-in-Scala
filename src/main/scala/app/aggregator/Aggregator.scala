@@ -39,7 +39,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
       .leftOuterJoin(titleRatings).mapValues {case (title,Some(rating)) => (title._2,title._3,rating)
       case (title, None) => (title._2,title._3,0.0) }.map(term => (term._1, term._2._1, term._2._3, term._2._2))
 
-
+    // Saving everything in variable space
     state = titledWithRatings.persist()
   }
 
@@ -49,6 +49,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
    * @return The pairs of titles and ratings
    */
   def getResult(): RDD[(String, Double)] = {
+    // Map on state to have the result in the proper form
     val result = state.map(term => (term._2, term._3))
     result
   }
@@ -62,7 +63,20 @@ class Aggregator(sc: SparkContext) extends Serializable {
    * @return The average rating for the given keywords. Return 0.0 if no
    *         such titles are rated and -1.0 if no such titles exist.
    */
-  def getKeywordQueryResult(keywords: List[String]): Double = ???
+  def getKeywordQueryResult(keywords: List[String]): Double = {
+
+    // this must be modified
+
+    val result = state.filter( term => keywords.forall(x => term._4.contains(x)))
+    if (result.isEmpty()) -1.0
+    else {
+      val output = result.filter(movie => movie._3 != 0.0)
+      if (output.isEmpty()) 0.0
+      else {
+        output.map(movie=>movie._3).mean()
+      }
+    }
+  }
 
   /**
    * Use the "delta"-ratings to incrementally maintain the aggregate ratings
