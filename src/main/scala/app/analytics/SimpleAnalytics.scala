@@ -114,7 +114,7 @@ class SimpleAnalytics() extends Serializable {
                                          requiredGenres: List[String],
                                          broadcastCallback: List[String] => Broadcast[List[String]]): RDD[String] = {
     val requirements = broadcastCallback(requiredGenres)
-    val result = movies.filter(movie => requirements.forall(x => movie.contains(x))).map(_._2)
+    val result = movies.filter(term => requirements.value.forall(x => term._3.contains(x))).map(_._2)
     result
   }
 
