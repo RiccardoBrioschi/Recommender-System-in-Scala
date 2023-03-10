@@ -11,7 +11,7 @@ import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
  */
 class Aggregator(sc: SparkContext) extends Serializable {
 
-  private var state = null
+  private var state : RDD[(Int,String,Double,List[String])]  = null
   private var partitioner: HashPartitioner = null
 
   /**
@@ -25,14 +25,23 @@ class Aggregator(sc: SparkContext) extends Serializable {
   def init(
             ratings: RDD[(Int, Int, Option[Double], Double, Int)],
             title: RDD[(Int, String, List[String])]
-          ): Unit = ???
+          ): Unit = {
+
+    val aggregate_movie_ratings = ratings.map(term => (term._2, term._4)).groupByKey.mapValues{iterator => iterator.sum / iterator.size}
+    val intermediate = title.map(term => (term._1, term._2)).join(aggregate_movie_ratings)
+    val result = title.map(term => (term._1, term._3)).join(intermediate).map(term => (term._1, term._2._2._1,term._2._2._2, term._2._1))
+    state = result
+  }
 
   /**
    * Return pre-computed title-rating pairs.
    *
    * @return The pairs of titles and ratings
    */
-  def getResult(): RDD[(String, Double)] = ???
+  def getResult(): RDD[(String, Double)] = {
+    val result = state.map(term => (term._2, term._3))
+    result
+  }
 
   /**
    * Compute the average rating across all (rated titles) that contain the
