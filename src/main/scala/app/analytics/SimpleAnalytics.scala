@@ -94,7 +94,8 @@ class SimpleAnalytics() extends Serializable {
    */
   def getAllMoviesByGenre(movies: RDD[(Int, String, List[String])],
                           requiredGenres: RDD[String]): RDD[String] = {
-    val requirements = requiredterm => requirements.forall(x => term._3.contains(x))).map(_._2)
+    val requirements = requiredGenres.collect.toList
+    val result = movies.filter(movie => requirements.forall(x => movie._3.contains(x))).map(_._2)
     result
   }
 
