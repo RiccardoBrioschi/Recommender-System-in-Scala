@@ -28,17 +28,21 @@ class Aggregator(sc: SparkContext) extends Serializable {
             title: RDD[(Int, String, List[String])]
           ): Unit = {
 
-    val titleRatings = ratings
-        .map(rating => (rating._2, (rating._4, 1)))
-      .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
+    val titleRatings = ratings.groupBy(_._2).mapValues(_.groupBy(_._1)).map(term => (term._1, term._2.
+      mapValues(elem => elem.reduce((a, b) => if (a._5 >= b._5) a else b))))
+      .map(term => (term._1, term._2.mapValues(elem => (elem._4,1))))
+      .flatMapValues(_.toList).map(term => (term._1, (term._2._2)))
+      .reduceByKey((a, b) => (a._1 + b._1, a._2 + b._2))
+
 
     val titleWithRatings = title.map(term => (term._1, (term._2, term._3)))
 
     state = titleWithRatings.leftOuterJoin(titleRatings)
     .mapValues { case (title, Some(rating)) => (title._2, title._1, rating._1, rating._2)
-    case (title, None) => ((title._2,title._1,0.0, 0))}.map(term =>
+    case (title, None) => ((title._2, title._1,0.0, 0))}.map(term =>
       (term._1,term._2._2, term._2._1,term._2._3, term._2._4))
 
+    state.persist()
   }
 
   /**
