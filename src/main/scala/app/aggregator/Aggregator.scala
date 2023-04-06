@@ -42,7 +42,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
 
     // Saving everything in variable space
 
-    state = result.map(term => if (term._4 == 0.0) (term._1, term._2,0.0, term._3)
+    state = result.map(term => if (term._5 == 0) (term._1, term._2,0.0, term._3)
     else (term._1, term._2, term._4 / term._5, term._3))
 
     intermediate_for_update = result.map(term => (term._1, term._2, term._4, term._5))
@@ -94,16 +94,15 @@ class Aggregator(sc: SparkContext) extends Serializable {
     val update = sc.parallelize(delta_).map(term => (term._2, (term._4, 1)))
       .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
 
-    //intermediate_for_update =  intermediate_for_update.map(term => (term._1, (term._2, term._3, term._4)))
-    //  .leftOuterJoin(update).mapValues { case (old_rating, Some(new_rating)) =>
-    //  (old_rating._1, old_rating._2 + new_rating._1, old_rating._3 + new_rating._2)
-    //case (old_rating, None) => (old_rating._1, old_rating._2, old_rating._3)}
-     // .map(term => (term._1, term._2._1, term._2._2, term._2._3))
+    intermediate_for_update =  intermediate_for_update.map(term => (term._1, (term._2, term._3, term._4)))
+     .leftOuterJoin(update).mapValues { case (old_rating, Some(new_rating)) =>
+     (old_rating._1, old_rating._2 + new_rating._1, old_rating._3 + new_rating._2)
+    case (old_rating, None) => (old_rating._1, old_rating._2, old_rating._3)}.map(term => (term._1, term._2._1, term._2._2, term._2._3))
 
-    //val result = intermediate_for_update.map(term => if (term._3 == 0.0) (term._2, term._3)
-    //else (term._2, term._3 / term._4))
+    val result = intermediate_for_update.map(term => if (term._3 == 0.0) (term._2, term._3)
+    else (term._2, term._3 / term._4))
 
-    intermediate_for_update
+    result
     }
 
 }
