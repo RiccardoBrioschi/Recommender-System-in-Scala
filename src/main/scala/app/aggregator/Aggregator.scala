@@ -13,6 +13,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
 
   private var state : RDD[(Int, String, Double, List[String])] = null
   private var partitioner: HashPartitioner = null
+  private var intermediate_for_update :RDD[(Int, String, List[String], Double, Int)] = null
 
   /**
    * Use the initial ratings and titles to compute the average rating for each title.
@@ -22,25 +23,28 @@ class Aggregator(sc: SparkContext) extends Serializable {
    *        format: (user_id: Int, title_id: Int, old_rating: Option[Double], rating: Double, timestamp: Int)
    * @param title   The RDD of titles in the file
    */
+
   def init(
             ratings: RDD[(Int, Int, Option[Double], Double, Int)],
             title: RDD[(Int, String, List[String])]
           ): Unit = {
 
-    // Compute the average rating for each title
     val titleRatings = ratings
-      .map(rating => (rating._2, (rating._4, 1)))
+        .map(rating => (rating._2, (rating._4, 1)))
       .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
-      .mapValues { case (totalRating, count) => totalRating / count }
+      .mapValues { case (totalRating, count) => (totalRating, count) }
 
-    // Add the rating to each title and fill in missing ratings with 0.0
-    val titledWithRatings = title
-      .map(title => (title._1, title))
-      .leftOuterJoin(titleRatings).mapValues {case (title,Some(rating)) => (title._2,title._3,rating)
-      case (title, None) => (title._2,title._3,0.0) }.map(term => (term._1, term._2._1, term._2._3, term._2._2))
+    val titleWithRatings = title.map(term => (term._1, (term._2, term._3)))
+
+    intermediate_for_update = titleWithRatings.leftOuterJoin(titleRatings)
+    .mapValues { case (title, Some(rating)) => (title._2, title._1, rating._1, rating._2)
+    case (title, None) => ((title._2,title._1,0.0, 0))}.map(term =>
+      (term._1,term._2._2, term._2._1,term._2._3, term._2._4))
 
     // Saving everything in variable space
-    state = titledWithRatings.persist()
+
+    state = intermediate_for_update.map(term => if (term._4 == 0.0) (term._1, term._2,0.0, term._3)
+    else (term._1, term._2, term._4 / term._5, term._3))
   }
 
   /**
