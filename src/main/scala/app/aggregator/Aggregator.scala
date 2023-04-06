@@ -48,7 +48,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
    */
   def getResult(): RDD[(String, Double)] = {
     // Map on state to have the result in the proper form
-    val result = state.map(term => if (term._5 == 0) (term._2, 0.0) else (term._2, term._4 / term._5))
+    val result = state.map(term => if (term._5 == 0) (term._2, 0.0) else (term._2, term._4 / term._5.toDouble))
     result
   }
 
@@ -65,7 +65,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
 
     // this must be modified
 
-    val temp_rdd = state.map(term => if (term._5 == 0) (term._1,term._2, 0.0, term._3) else (term._1,term._2, term._4 / term._5, term._3))
+    val temp_rdd = state.map(term => if (term._5 == 0) (term._1,term._2, 0.0, term._3) else (term._1,term._2, term._4 / term._5.toDouble, term._3))
     val result = temp_rdd.filter( term => keywords.forall(x => term._4.contains(x)))
     if (result.isEmpty()) -1.0
     else {
@@ -93,6 +93,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
      (old_rating._1, old_rating._2, old_rating._3 + new_rating._1, old_rating._4 + new_rating._2)
     case (old_rating, None) => (old_rating._1, old_rating._2, old_rating._3, old_rating._4)}.map(term => (term._1, term._2._1, term._2._2, term._2._3, term._2._4))
 
+    state.persist()
     }
 
 }
