@@ -89,13 +89,17 @@ class Aggregator(sc: SparkContext) extends Serializable {
    */
   def updateResult(delta_ : Array[(Int, Int, Option[Double], Double, Int)]): Unit = {
 
-    val update = sc.parallelize(delta_).map(term => (term._2, (term._4, 1)))
-      .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
+    val update = sc.parallelize(delta_).map{
+      case (user, movie, Some(old_rating), new_rating, timestamp) => (movie, new_rating - old_rating, 0)
+      case (user, movie, None, new_rating, timestamp) => (movie, new_rating, 1) }
+      .map (term => (term._1, (term._2, term._3))).reduceByKey((a,b)=>
+      (a._1 + b._1, a._2 + b._2))
 
-    state =  state.map(term => (term._1, (term._2, term._3, term._4, term._5)))
-     .leftOuterJoin(update).mapValues { case (old_rating, Some(new_rating)) =>
-     (old_rating._1, old_rating._2, old_rating._3 + new_rating._1, old_rating._4 + new_rating._2)
-    case (old_rating, None) => (old_rating._1, old_rating._2, old_rating._3, old_rating._4)}.map(term => (term._1, term._2._1, term._2._2, term._2._3, term._2._4))
+    state = state.map(term => (term._1, (term._2, term._3, term._4, term._5))). leftOuterJoin(update)
+      .mapValues{ case (old_r, Some(new_r)) => (old_r._1, old_r._2, old_r._3 + new_r._1, old_r._4 + new_r._2)
+    case (old_r, None) => (old_r._1, old_r._2, old_r._3, old_r._4)}
+      .map(term => (term._1, term._2._1, term._2._2, term._2._3, term._2._4))
+
 
     state.persist()
     }

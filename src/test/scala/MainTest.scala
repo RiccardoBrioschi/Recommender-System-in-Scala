@@ -2636,7 +2636,6 @@ class MainTest {
       ("Toy Story 3 (2010)", 4.078431372549019)
     )
 
-    res.foreach(x => println(x))
     res.zip(expected).foreach(t => {
       if (t._1._1 != t._2._1) {
         println(t._1._1 + " != " + t._2._1)
