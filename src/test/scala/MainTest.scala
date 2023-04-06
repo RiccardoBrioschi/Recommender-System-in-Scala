@@ -2681,6 +2681,8 @@ class MainTest {
       .collect()
       .sortWith((a, b) => a.toString() <= b.toString())
 
+    res.foreach(x => println(x))
+
     val expected = Array(
       ("Avatar (2009)", 3.5729166666666665),
       ("Lord of the Rings, The (1978)", 3.142857142857143),

@@ -13,7 +13,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
 
   private var state : RDD[(Int, String, Double, List[String])] = null
   private var partitioner: HashPartitioner = null
-  private var intermediate_for_update :RDD[(Int, String, List[String], Double, Int)] = null
+  private var intermediate_for_update :RDD[(Int, String, Double, Int)] = null
 
   /**
    * Use the initial ratings and titles to compute the average rating for each title.
@@ -32,19 +32,20 @@ class Aggregator(sc: SparkContext) extends Serializable {
     val titleRatings = ratings
         .map(rating => (rating._2, (rating._4, 1)))
       .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
-      .mapValues { case (totalRating, count) => (totalRating, count) }
 
     val titleWithRatings = title.map(term => (term._1, (term._2, term._3)))
 
-    intermediate_for_update = titleWithRatings.leftOuterJoin(titleRatings)
+    val result = titleWithRatings.leftOuterJoin(titleRatings)
     .mapValues { case (title, Some(rating)) => (title._2, title._1, rating._1, rating._2)
     case (title, None) => ((title._2,title._1,0.0, 0))}.map(term =>
       (term._1,term._2._2, term._2._1,term._2._3, term._2._4))
 
     // Saving everything in variable space
 
-    state = intermediate_for_update.map(term => if (term._4 == 0.0) (term._1, term._2,0.0, term._3)
+    state = result.map(term => if (term._4 == 0.0) (term._1, term._2,0.0, term._3)
     else (term._1, term._2, term._4 / term._5, term._3))
+
+    intermediate_for_update = result.map(term => (term._1, term._2, term._4, term._5))
   }
 
   /**
@@ -88,5 +89,21 @@ class Aggregator(sc: SparkContext) extends Serializable {
    *  @param delta Delta ratings that haven't been included previously in aggregates
    *        format: (user_id: Int, title_id: Int, old_rating: Option[Double], rating: Double, timestamp: Int)
    */
-  def updateResult(delta_ : Array[(Int, Int, Option[Double], Double, Int)]): Unit = ???
+  def updateResult(delta_ : Array[(Int, Int, Option[Double], Double, Int)]): Unit = {
+
+    val update = sc.parallelize(delta_).map(term => (term._2, (term._4, 1)))
+      .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
+
+    //intermediate_for_update =  intermediate_for_update.map(term => (term._1, (term._2, term._3, term._4)))
+    //  .leftOuterJoin(update).mapValues { case (old_rating, Some(new_rating)) =>
+    //  (old_rating._1, old_rating._2 + new_rating._1, old_rating._3 + new_rating._2)
+    //case (old_rating, None) => (old_rating._1, old_rating._2, old_rating._3)}
+     // .map(term => (term._1, term._2._1, term._2._2, term._2._3))
+
+    //val result = intermediate_for_update.map(term => if (term._3 == 0.0) (term._2, term._3)
+    //else (term._2, term._3 / term._4))
+
+    intermediate_for_update
+    }
+
 }
