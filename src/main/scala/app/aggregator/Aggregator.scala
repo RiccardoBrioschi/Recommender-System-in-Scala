@@ -11,9 +11,8 @@ import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
  */
 class Aggregator(sc: SparkContext) extends Serializable {
 
-  private var state : RDD[(Int, String, Double, List[String])] = null
   private var partitioner: HashPartitioner = null
-  private var intermediate_for_update :RDD[(Int, String, Double, Int)] = null
+  private var state :RDD[(Int, String, List[String],Double, Int)] = null
 
   /**
    * Use the initial ratings and titles to compute the average rating for each title.
@@ -35,17 +34,11 @@ class Aggregator(sc: SparkContext) extends Serializable {
 
     val titleWithRatings = title.map(term => (term._1, (term._2, term._3)))
 
-    val result = titleWithRatings.leftOuterJoin(titleRatings)
+    state = titleWithRatings.leftOuterJoin(titleRatings)
     .mapValues { case (title, Some(rating)) => (title._2, title._1, rating._1, rating._2)
     case (title, None) => ((title._2,title._1,0.0, 0))}.map(term =>
       (term._1,term._2._2, term._2._1,term._2._3, term._2._4))
 
-    // Saving everything in variable space
-
-    state = result.map(term => if (term._5 == 0) (term._1, term._2,0.0, term._3)
-    else (term._1, term._2, term._4 / term._5, term._3))
-
-    intermediate_for_update = result.map(term => (term._1, term._2, term._4, term._5))
   }
 
   /**
@@ -55,7 +48,7 @@ class Aggregator(sc: SparkContext) extends Serializable {
    */
   def getResult(): RDD[(String, Double)] = {
     // Map on state to have the result in the proper form
-    val result = state.map(term => (term._2, term._3))
+    val result = state.map(term => if (term._5 == 0) (term._2, 0.0) else (term._2, term._4 / term._5))
     result
   }
 
@@ -72,7 +65,8 @@ class Aggregator(sc: SparkContext) extends Serializable {
 
     // this must be modified
 
-    val result = state.filter( term => keywords.forall(x => term._4.contains(x)))
+    val temp_rdd = state.map(term => if (term._5 == 0) (term._1,term._2, 0.0, term._3) else (term._1,term._2, term._4 / term._5, term._3))
+    val result = temp_rdd.filter( term => keywords.forall(x => term._4.contains(x)))
     if (result.isEmpty()) -1.0
     else {
       val output = result.filter(movie => movie._3 != 0.0)
@@ -94,15 +88,11 @@ class Aggregator(sc: SparkContext) extends Serializable {
     val update = sc.parallelize(delta_).map(term => (term._2, (term._4, 1)))
       .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
 
-    intermediate_for_update =  intermediate_for_update.map(term => (term._1, (term._2, term._3, term._4)))
+    state =  state.map(term => (term._1, (term._2, term._3, term._4, term._5)))
      .leftOuterJoin(update).mapValues { case (old_rating, Some(new_rating)) =>
-     (old_rating._1, old_rating._2 + new_rating._1, old_rating._3 + new_rating._2)
-    case (old_rating, None) => (old_rating._1, old_rating._2, old_rating._3)}.map(term => (term._1, term._2._1, term._2._2, term._2._3))
+     (old_rating._1, old_rating._2, old_rating._3 + new_rating._1, old_rating._4 + new_rating._2)
+    case (old_rating, None) => (old_rating._1, old_rating._2, old_rating._3, old_rating._4)}.map(term => (term._1, term._2._1, term._2._2, term._2._3, term._2._4))
 
-    val result = intermediate_for_update.map(term => if (term._3 == 0.0) (term._2, term._3)
-    else (term._2, term._3 / term._4))
-
-    result
     }
 
 }
