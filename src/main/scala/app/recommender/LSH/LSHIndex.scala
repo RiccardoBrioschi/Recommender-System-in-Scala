@@ -32,8 +32,9 @@ class LSHIndex(data: RDD[(Int, String, List[String])], seed : IndexedSeq[Int]) e
    */
   def getBuckets(): RDD[(IndexedSeq[Int], List[(Int, String, List[String])])] = {
 
-    val result = data.map(term => (term._1, term._2, term._3, minhash.hash(term._3))).
-      map(term => (term._4,(term._1, term._2, term._3))).groupByKey().mapValues(elem => elem.toList)
+    val result = data.map(term => (minhash.hash(term._3),(term._1, term._2, term._3))).
+      groupByKey().mapValues(elem => elem.toList)
+
     result
   }
 
@@ -47,9 +48,14 @@ class LSHIndex(data: RDD[(Int, String, List[String])], seed : IndexedSeq[Int]) e
    */
   def lookup[T: ClassTag](queries: RDD[(IndexedSeq[Int], T)])
   : RDD[(IndexedSeq[Int], T, List[(Int, String, List[String])])] = {
-    val processed_data = this.getBuckets().map(term => (term._1, term._2))
-    val result = queries.join(processed_data).
-      map(term => (term._1, term._2._1, term._2._2))
-    result
+
+    val processed_data = this.getBuckets()
+
+    val result = queries.leftOuterJoin(processed_data).
+      mapValues { case (attributes, Some(movies)) => (attributes, movies)
+    case (attributes, None) => (attributes, List())
+    }
+
+    result.map(term => (term._1, term._2._1, term._2._2))
   }
 }

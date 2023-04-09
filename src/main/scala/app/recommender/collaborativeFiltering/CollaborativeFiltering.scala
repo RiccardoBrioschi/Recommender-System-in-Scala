@@ -21,8 +21,7 @@ class CollaborativeFiltering(rank: Int,
     val temp_model = new ALS().setSeed(seed).setRank(rank).setIterations(maxIterations)
       .setLambda(regularizationParameter).setBlocks(n_parallel)
 
-    val correct_rating = ratingsRDD.map(term => (term._1, term._2, term._4))
-      .map(term => new Rating(term._1, term._2, term._3))
+    val correct_rating = ratingsRDD.map(term => new Rating(term._1, term._2, term._4))
 
     model = temp_model.run(correct_rating)
   }

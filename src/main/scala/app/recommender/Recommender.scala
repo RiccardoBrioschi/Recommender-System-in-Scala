@@ -31,11 +31,8 @@ class Recommender(sc: SparkContext,
     // I need to collect otherwise no serializable
 
     val temp = nn_lookup.lookup(rdd_genre)
-    temp.collect().foreach(x => println(x))
 
     val similar_movies = nn_lookup.lookup(rdd_genre).flatMap(term => term._2.map(elem=> elem._1)).collect().toList
-
-    similar_movies.foreach(x => println(x))
 
     // for every movie, computing the predicted score
     val predictions = similar_movies.map( term => (term, baselinePredictor.predict(userId, term)))
@@ -54,7 +51,6 @@ class Recommender(sc: SparkContext,
     // saving movieId for movies similar to the list of genres
     val rdd_genre = sc.parallelize(List(genre))
     // I need to collect otherwise no serializable
-
     val similar_movies = nn_lookup.lookup(rdd_genre).flatMap(term => term._2.map(elem => elem._1)).collect().toList
 
     // for every movie, computing the predicted score
@@ -63,7 +59,6 @@ class Recommender(sc: SparkContext,
     // retrieving only the k largest
     val result = predictions.sortBy(_._2).reverse.take(K)
 
-    result.foreach(x => println(x))
     result
   }
 }
