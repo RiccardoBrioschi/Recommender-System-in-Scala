@@ -18,8 +18,11 @@ class MoviesLoader(sc: SparkContext, path: String) extends Serializable {
    */
   def load(): RDD[(Int, String, List[String])]= {
 
+    // Finding the path to retrieve data
     val resource= getClass.getResource(path).toString
+    // Importing the data
     val movie_rdd = sc.textFile(resource)
+    // Giving to each rate the structure described in the task (splitting and removing quotes)
     val result = movie_rdd.map(x => {
       val fields = x.split('|')
       val id_client = fields(0).toInt
@@ -27,6 +30,7 @@ class MoviesLoader(sc: SparkContext, path: String) extends Serializable {
       val list = fields.toList.drop(2).map(x=> x.replaceAll("^\"|\"$",""))
       (id_client, movie_name,list)
     })
+    // Caching the data to reduce overload
     result.cache()
   }
 }

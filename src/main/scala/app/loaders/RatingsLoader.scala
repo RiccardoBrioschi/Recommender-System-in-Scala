@@ -18,8 +18,11 @@ class RatingsLoader(sc : SparkContext, path : String) extends Serializable {
    */
   def load() : RDD[(Int, Int, Option[Double], Double, Int)] = {
 
+    // Finding the path to retrieve data
     val resource = getClass.getResource(path).toString
+    // Importing the data
     val rating_rdd = sc.textFile(resource)
+    // Giving to each rate the structure described in the task (splitting and introducing optional old rate)
     val result = rating_rdd.map(x => {
       val fields = x.split('|')
       val id_client = fields(0).toInt
@@ -29,6 +32,7 @@ class RatingsLoader(sc : SparkContext, path : String) extends Serializable {
       val timestamp = if (fields.length == 5) fields(4) else fields(3)
       (id_client, id_movie, old_rating, new_rating.toDouble, timestamp.toInt)
     })
+    // Caching the data to reduce overload
     result.cache
   }
 }
