@@ -18,17 +18,24 @@ class CollaborativeFiltering(rank: Int,
 
   def init(ratingsRDD: RDD[(Int, Int, Option[Double], Double, Int)]): Unit = {
 
+    // Initializing the ALS object with the correct hyperparameters
     val temp_model = new ALS().setSeed(seed).setRank(rank).setIterations(maxIterations)
       .setLambda(regularizationParameter).setBlocks(n_parallel)
 
+    // Converting the rating in ratingsRDD to the correct format to be used by temp_model
     val correct_rating = ratingsRDD.map(term => new Rating(term._1, term._2, term._4))
 
+    // We save the trained model in model variable. From now on we are going to use it in order to
+    // return predictions
     model = temp_model.run(correct_rating)
   }
 
 
-  def predict(userId: Int, movieId: Int): Double =
+  def predict(userId: Int, movieId: Int): Double = {
 
+    // Using the model trained in init(), we return the predicted rating userId would have given to
+    // the movie identified by movieId
     model.predict(userId, movieId)
+  }
 
 }

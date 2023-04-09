@@ -18,10 +18,10 @@ class NNLookup(lshIndex: LSHIndex) extends Serializable {
   def lookup(queries: RDD[List[String]])
   : RDD[(List[String], List[(Int, String, List[String])])] = {
 
-    // For every list of string (genre) we compute the hashing
+    // For every list of string (query containing the genres we are interested in) we compute the hashing
     val processed_queries = lshIndex.hash(queries)
 
-    // Extracting similar movies depending on the hashing value
+    // Extracting similar movies depending on the hashing value using lshIndex
     val result = lshIndex.lookup(processed_queries).map(term => (term._2, term._3))
     result
   }
