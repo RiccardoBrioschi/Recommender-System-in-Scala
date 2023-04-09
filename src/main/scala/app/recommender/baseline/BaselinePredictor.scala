@@ -25,6 +25,8 @@ class BaselinePredictor() extends Serializable {
         else if (term._4 < user_mean) user_mean - 1
         else 1}
       (term._1, term._2, term._3, (term._4 - user_mean) / deviation, term._5)})
+
+    normalized_data_so_far.persist()
   }
 
   def predict(userId: Int, movieId: Int): Double = {
@@ -45,7 +47,8 @@ class BaselinePredictor() extends Serializable {
       if (temp_sum > user_mean) 5 - user_mean
       else if (temp_sum < user_mean) user_mean - 1
       else 1
-    } else 0}
+    }
+    else 0.0}
 
     val result = {
       if (final_scaling_factor == 0.0) user_mean
