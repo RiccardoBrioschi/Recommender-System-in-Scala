@@ -42,7 +42,13 @@ class BaselinePredictor() extends Serializable {
     // the movie identified by movieId
 
     // Computing the average rating for the specific user in order to set the offset for the future prediction
-    val user_mean = stat_for_user.filter(term => term._1 == userId).head._2 // extracting the mean of the user
+    val user_mean = {
+      if (stat_for_user.filter(term => term._1 == userId).isEmpty)
+        data_so_far.map(x => x._4).mean()
+      else
+        stat_for_user.filter(term => term._1 == userId).head._2
+
+    } // extracting the mean of the user
 
     // Computing the global average deviation for the movie given as input argument
     val rating_for_specific_movie = normalized_data_so_far.filter(term => term._2 == movieId).map(elem => (elem._4, 1)).
