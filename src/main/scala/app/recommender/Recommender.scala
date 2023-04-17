@@ -30,17 +30,25 @@ class Recommender(sc: SparkContext,
     val rdd_genre = sc.parallelize(List(genre))
     // We need to extract movies which have not been rated by the user and which are similar to the required genre.
     // In order to do so, we start by saving the movies rated by the user identified by userId
-    val movies_rated_by_user = ratings.filter(term=> term._1 == userId).
-      map(term => term._2).collect()
+    val movies_rated_by_user = ratings
+      .filter(term=> term._1 == userId)
+      .map(term => term._2).collect()
     // Saving movieId for movies similar to the list of genres and extracting the ones not rated by the user so far
-    val similar_movies = nn_lookup.lookup(rdd_genre).flatMap(term => term._2.map(elem => elem._1)).collect().toList // Need to collect otherwise no serializable
+    val similar_movies = nn_lookup
+      .lookup(rdd_genre)
+      .flatMap(term => term._2.map(elem => elem._1))
+      .collect()
+      .toList // Need to collect otherwise no serializable
     val new_movies_to_rate = similar_movies.filter(elem => !movies_rated_by_user.contains(elem))
 
     // For each resulting movie, we compute the predicted score using baselinePredictor
     val predictions = new_movies_to_rate.map( term => (term, baselinePredictor.predict(userId, term)))
 
     // We retrieve the K movies having the largest predicted score
-    val result = predictions.sortBy(_._2).reverse.take(K)
+    val result = predictions
+      .sortBy(_._2)
+      .reverse
+      .take(K)
 
     result
 
@@ -55,17 +63,26 @@ class Recommender(sc: SparkContext,
     val rdd_genre = sc.parallelize(List(genre))
     // We need to extract movies which have not been rated by the user and which are similar to the required genre.
     // In order to do so, we start by saving the movies rated by the user identified by userId
-    val movies_rated_by_user = ratings.filter(term => term._1 == userId).
-      map(term => term._2).collect()
+    val movies_rated_by_user = ratings
+      .filter(term => term._1 == userId)
+      .map(term => term._2)
+      .collect()
     // Saving movieId for movies similar to the list of genres and extracting the ones not rated by the user so far
-    val similar_movies = nn_lookup.lookup(rdd_genre).flatMap(term => term._2.map(elem => elem._1)).collect().toList // Need to collect otherwise no serializable
+    val similar_movies = nn_lookup
+      .lookup(rdd_genre)
+      .flatMap(term => term._2.map(elem => elem._1))
+      .collect()
+      .toList // Need to collect otherwise no serializable
     val new_movies_to_rate = similar_movies.filter(elem => !movies_rated_by_user.contains(elem))
 
     // For each resulting movie, we compute the predicted score using collaborativePredictor
     val predictions = new_movies_to_rate.map(term => (term, collaborativePredictor.predict(userId, term)))
 
     // We retrieve the K movies having the largest predicted score
-    val result = predictions.sortBy(_._2).reverse.take(K)
+    val result = predictions
+      .sortBy(_._2)
+      .reverse
+      .take(K)
 
     result
   }

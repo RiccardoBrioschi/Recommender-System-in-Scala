@@ -19,8 +19,12 @@ class CollaborativeFiltering(rank: Int,
   def init(ratingsRDD: RDD[(Int, Int, Option[Double], Double, Int)]): Unit = {
 
     // Initializing the ALS object with the correct hyperparameters
-    val temp_model = new ALS().setSeed(seed).setRank(rank).setIterations(maxIterations)
-      .setLambda(regularizationParameter).setBlocks(n_parallel)
+    val temp_model = new ALS()
+      .setSeed(seed)
+      .setRank(rank)
+      .setIterations(maxIterations)
+      .setLambda(regularizationParameter)
+      .setBlocks(n_parallel)
 
     // Converting the rating in ratingsRDD to the correct format to be used by temp_model
     val correct_rating = ratingsRDD.map(term => new Rating(term._1, term._2, term._4))

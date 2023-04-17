@@ -32,8 +32,10 @@ class Aggregator(sc: SparkContext) extends Serializable {
     // For every movie, we consider the ratings given by each user. For every single user,
     // we only consider the latest rating. This is achieved by grouping by userId and comparing
     // the timestamp of the observed ratings
-    val titleRatings = ratings.groupBy(_._2).mapValues(_.groupBy(_._1)).map(term => (term._1, term._2.
-      mapValues(elem => elem.reduce((a, b) => if (a._5 >= b._5) a else b))))
+    val titleRatings = ratings
+      .groupBy(_._2)
+      .mapValues(_.groupBy(_._1))
+      .map(term => (term._1, term._2.mapValues(elem => elem.reduce((a, b) => if (a._5 >= b._5) a else b))))
       .map(term => (term._1, term._2.mapValues(elem => (elem._4,1))))
       .flatMapValues(_.toList).map(term => (term._1, (term._2._2)))
       .reduceByKey((a, b) => (a._1 + b._1, a._2 + b._2))
@@ -43,10 +45,11 @@ class Aggregator(sc: SparkContext) extends Serializable {
 
     // We perform an outerleftjoin to compute the average rating for every single movie in the title RDD.
     // If a movie has no ratings, then its average rating is automatically set to zero
-    state = titleWithRatings.leftOuterJoin(titleRatings)
-    .mapValues { case (title, Some(rating)) => (title._2, title._1, rating._1, rating._2)
-    case (title, None) => ((title._2, title._1,0.0, 0))}.map(term =>
-      (term._1,term._2._2, term._2._1,term._2._3, term._2._4))
+    state = titleWithRatings
+      .leftOuterJoin(titleRatings)
+      .mapValues { case (title, Some(rating)) => (title._2, title._1, rating._1, rating._2)
+    case (title, None) => ((title._2, title._1,0.0, 0))}
+      .map(term => (term._1,term._2._2, term._2._1,term._2._3, term._2._4))
 
     // We persist the result in memory to reduce the overload
     state.persist()
@@ -123,7 +126,9 @@ class Aggregator(sc: SparkContext) extends Serializable {
       (a._1 + b._1, a._2 + b._2))
 
     // Saving the updated result in state so that the class can keep trace of every update
-    state = state.map(term => (term._1, (term._2, term._3, term._4, term._5))). leftOuterJoin(update)
+    state = state
+      .map(term => (term._1, (term._2, term._3, term._4, term._5)))
+      .leftOuterJoin(update)
       .mapValues{ case (old_r, Some(new_r)) => (old_r._1, old_r._2, old_r._3 + new_r._1, old_r._4 + new_r._2)
     case (old_r, None) => (old_r._1, old_r._2, old_r._3, old_r._4)}
       .map(term => (term._1, term._2._1, term._2._2, term._2._3, term._2._4))

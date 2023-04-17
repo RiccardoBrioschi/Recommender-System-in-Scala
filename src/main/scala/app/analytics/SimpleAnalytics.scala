@@ -47,12 +47,14 @@ class SimpleAnalytics() extends Serializable {
     // a future join on movieId
     val first_rdd = titlesGroupedById.map(movie => (movie._1,movie._2.toList.head._2))
     // We create a second new RDD containing, for each year, the ID of the movie which received the largest number of ratings
-    val second_rdd = ratingsGroupedByYearByTitle.map(term=> (term._2.map(elem=> (elem._1,elem._2.size)).reduce((a,b) =>{
+    val second_rdd = ratingsGroupedByYearByTitle
+      .map(term=> (term._2.map(elem=> (elem._1,elem._2.size)).reduce((a,b) =>{
       if (a._2 > b._2) a
       else if (b._2 > a._2) b
       else if (a._1 > b._1) a
       else b
-    }) , term._1)).map(movie=> (movie._1._1,movie._2))
+    }) , term._1))
+      .map(movie=> (movie._1._1,movie._2))
     // We join and return the result
     val joined_rdd = first_rdd.join(second_rdd).map(term=> (term._2._2,term._2._1))
     joined_rdd
@@ -67,12 +69,14 @@ class SimpleAnalytics() extends Serializable {
     val first_rdd = titlesGroupedById.map(movie => (movie._1, movie._2.toList.head._3))
     // We create a second new RDD containing, for each year, the ID of the movie which received the largest number of ratings
     // Observe: the function defined in the reduce operation is necessary to solve ties
-    val second_rdd = ratingsGroupedByYearByTitle.map(term => (term._2.map(elem => (elem._1, elem._2.size)).reduce((a, b) => {
+    val second_rdd = ratingsGroupedByYearByTitle
+      .map(term => (term._2.map(elem => (elem._1, elem._2.size)).reduce((a, b) => {
       if (a._2 > b._2) a
       else if (b._2 > a._2) b
       else if (a._1 > b._1) a
       else b
-    }), term._1)).map(movie => (movie._1._1, movie._2))
+    }), term._1))
+      .map(movie => (movie._1._1, movie._2))
     // Given the result, we consider the list containing the genres
     val joined_rdd = first_rdd.join(second_rdd).map(term => (term._2._2, term._2._1))
     joined_rdd
@@ -84,7 +88,9 @@ class SimpleAnalytics() extends Serializable {
     val result = this.getMostRatedGenreEachYear
     // The computation of the most and least rated genre is done based on the results we have just retrieved
     // For every year, we compute the number of ratings every genre received (each genre is identified by its name)
-    val intermediate = result.flatMap(year => year._2.map(genre => (genre,1))).reduceByKey(_ + _)
+    val intermediate = result
+      .flatMap(year => year._2.map(genre => (genre,1)))
+      .reduceByKey(_ + _)
     // Finding the genre which received the largest number of ratings
     val most = intermediate.reduce((x,y) => {
       if (x._2 > y._2) x
@@ -116,7 +122,9 @@ class SimpleAnalytics() extends Serializable {
     val requirements = requiredGenres.collect.toList
     // Given the movies, we filter them in order to keep only the titles whose list of genres contains
     // the required genres
-    val result = movies.filter(movie => requirements.forall(x => movie._3.contains(x))).map(_._2)
+    val result = movies
+      .filter(movie => requirements.forall(x => movie._3.contains(x)))
+      .map(_._2)
     result
   }
 
@@ -139,7 +147,9 @@ class SimpleAnalytics() extends Serializable {
     val requirements = broadcastCallback(requiredGenres)
     // Given the movies, we filter them in order to keep only the titles whose list of genres contains
     // the required genres
-    val result = movies.filter(movie => requirements.value.forall(x => movie._3.contains(x))).map(_._2)
+    val result = movies
+      .filter(movie => requirements.value.forall(x => movie._3.contains(x)))
+      .map(_._2)
     result
   }
 

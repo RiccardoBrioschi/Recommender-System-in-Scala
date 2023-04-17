@@ -15,8 +15,10 @@ class BaselinePredictor() extends Serializable {
     // every time a user asks for a prediction
 
     // Computing average prediction for each user and converting it to a list
-    stat_for_user = ratingsRDD.map(term => (term._1, (term._2, term._3, term._4, term._5))).groupByKey().
-      mapValues(term => term.map(elem=> (elem._3, 1)).reduce((a,b) => (a._1 + b._1, a._2 + b._2)))
+    stat_for_user = ratingsRDD
+      .map(term => (term._1, (term._2, term._3, term._4, term._5)))
+      .groupByKey()
+      .mapValues(term => term.map(elem=> (elem._3, 1)).reduce((a,b) => (a._1 + b._1, a._2 + b._2)))
       .map( term => (term._1, term._2._1 / term._2._2)).collect()
 
     // Saving rating RDD to use it later
@@ -24,7 +26,8 @@ class BaselinePredictor() extends Serializable {
 
     // Given the rating RDD, we modify each entry normalizing it. For this end, we need to use the
     // previously computed user mean and the scaling factor as defined in the project description
-    normalized_data_so_far = data_so_far.map(term => {
+    normalized_data_so_far = data_so_far
+      .map(term => {
       val user_mean = stat_for_user.filter(elem => elem._1 == term._1).head._2
       val deviation = {
         if (term._4 > user_mean) 5 - user_mean
@@ -51,8 +54,11 @@ class BaselinePredictor() extends Serializable {
     } // extracting the mean of the user
 
     // Computing the global average deviation for the movie given as input argument
-    val rating_for_specific_movie = normalized_data_so_far.filter(term => term._2 == movieId).map(elem => (elem._4, 1)).
-      reduce((a,b) => (a._1 + b._1, a._2 + b._2))
+    val rating_for_specific_movie = normalized_data_so_far
+      .filter(term => term._2 == movieId)
+      .map(elem => (elem._4, 1))
+      .reduce((a,b) => (a._1 + b._1, a._2 + b._2))
+
     val global_average_deviation_for_movie = rating_for_specific_movie._1 / rating_for_specific_movie._2
 
     // Computing the final scaling factor (it is used only iff the global average deviation for movie is
